@@ -1,6 +1,6 @@
 node_modules
-dist
 .angular
 .git
 .DS_Store
 *.log
+material-design-skill

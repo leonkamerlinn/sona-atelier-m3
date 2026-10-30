@@ -1,0 +1,7 @@
+node_modules
+.angular
+.git
+.DS_Store
+*.log
+material-design-skill
+src
