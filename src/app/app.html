@@ -6,17 +6,17 @@
     <div class="ribbon-inner">
       <span class="ribbon-item">
         <span class="ms-icon filled">verified</span>
-        Complimentary Express Air Courier over €500
+        Free Express Courier &gt;€500 · Code <code>SONA10</code> (-10%)
       </span>
-      <span class="ribbon-dot">·</span>
-      <span class="ribbon-item">
+      <span class="ribbon-dot hide-mobile">·</span>
+      <span class="ribbon-item hide-mobile">
         <span class="ms-icon">precision_manufacturing</span>
         5-Year Copenhagen &amp; Tokyo Atelier Warranty
       </span>
-      <span class="ribbon-dot">·</span>
-      <span class="ribbon-item">
+      <span class="ribbon-dot hide-tablet">·</span>
+      <span class="ribbon-item hide-tablet">
         <span class="ms-icon">palette</span>
-        Live M3 Dynamic HCT Theme: <strong>{{ theme.seedColor() }}</strong> (Use <code>SONA10</code> for 10% off)
+        Live M3 Dynamic HCT Theme: <strong>{{ theme.seedColor() }}</strong>
       </span>
     </div>
   </div>
@@ -126,8 +126,10 @@
           class="m3-btn m3-btn--filled m3-btn--s bag-trigger-btn"
           (click)="cartOpen.set(true); checkoutStep.set('bag')">
           <span class="ms-icon filled">shopping_bag</span>
-          <span>Bag</span>
-          <span class="bag-count-pill tabular-nums">{{ cartCount() }} · €{{ cartSubtotal() }}</span>
+          <span class="bag-label-text">Bag</span>
+          <span class="bag-count-pill tabular-nums">
+            {{ cartCount() }}<span class="bag-subtotal-text"> · €{{ cartSubtotal() }}</span>
+          </span>
         </button>
       </div>
     </div>
@@ -278,24 +280,26 @@
         <!-- Right Column: Concentric Media Frame (32dp Outer - 12dp Padding = 20dp Inner Radius) -->
         <div class="hero-media-outer">
           <div class="hero-media-inner">
-            <img
-              src="/images/hero-flagship.png"
-              alt="Sona Atelier flagship terracotta speaker and planar magnetic headphones on a honed travertine plinth"
-              class="hero-studio-img" />
+            <div class="hero-stage-canvas">
+              <img
+                src="/images/hero-flagship.png"
+                alt="Sona Atelier flagship terracotta speaker and planar magnetic headphones on a honed travertine plinth"
+                class="hero-studio-img" />
 
-            <!-- Interactive Engineering Hotspot Pins -->
-            @for (spot of heroHotspots; track spot.id) {
-              <button
-                type="button"
-                class="hotspot-pin"
-                [class.active]="activeHeroHotspot() === spot.id"
-                [style.left]="spot.x"
-                [style.top]="spot.y"
-                (click)="activeHeroHotspot.set(spot.id)"
-                [attr.aria-label]="spot.title">
-                <span class="pin-core">{{ spot.id + 1 }}</span>
-              </button>
-            }
+              <!-- Interactive Engineering Hotspot Pins -->
+              @for (spot of heroHotspots; track spot.id) {
+                <button
+                  type="button"
+                  class="hotspot-pin"
+                  [class.active]="activeHeroHotspot() === spot.id"
+                  [style.left]="spot.x"
+                  [style.top]="spot.y"
+                  (click)="activeHeroHotspot.set(spot.id)"
+                  [attr.aria-label]="spot.title">
+                  <span class="pin-core">{{ spot.id + 1 }}</span>
+                </button>
+              }
+            </div>
 
             <!-- M3 Rich Tooltip Overlay for Active Hotspot + Quick Bundle Add -->
             <div class="hero-floating-hud">
@@ -899,8 +903,11 @@
        10. PRODUCT DETAIL & CUSTOMIZER MODAL DIALOG (28dp Extra-Large Radius)
        ====================================================================== -->
   @if (activeProductModal(); as prod) {
-    <div class="m3-scrim" (click)="activeProductModal.set(null)">
+    <div class="m3-scrim modal-sheet-scrim" (click)="activeProductModal.set(null)">
       <div class="m3-configurator-dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <div class="mobile-sheet-handle" (click)="activeProductModal.set(null)">
+          <span></span>
+        </div>
         <div class="config-grid">
           <!-- Left Concentric Image Column -->
           <div class="config-media-col">
