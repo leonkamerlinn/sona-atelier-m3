@@ -1,0 +1,403 @@
+/* ==========================================================================
+   Material Design 3 + M3 Expressive — Production Component Primitives
+   Requires: m3-tokens.css
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Base Reset & Typography Utility Classes
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+  letter-spacing: var(--md-sys-typescale-body-large-tracking);
+  -webkit-font-smoothing: antialiased;
+}
+
+.md-display-large { font: var(--md-sys-typescale-display-large-weight) var(--md-sys-typescale-display-large-size)/var(--md-sys-typescale-display-large-line-height) var(--md-sys-typescale-display-large-font); letter-spacing: var(--md-sys-typescale-display-large-tracking); }
+.md-display-medium { font: var(--md-sys-typescale-display-medium-weight) var(--md-sys-typescale-display-medium-size)/var(--md-sys-typescale-display-medium-line-height) var(--md-sys-typescale-display-medium-font); letter-spacing: var(--md-sys-typescale-display-medium-tracking); }
+.md-display-small { font: var(--md-sys-typescale-display-small-weight) var(--md-sys-typescale-display-small-size)/var(--md-sys-typescale-display-small-line-height) var(--md-sys-typescale-display-small-font); letter-spacing: var(--md-sys-typescale-display-small-tracking); }
+.md-headline-large { font: var(--md-sys-typescale-headline-large-weight) var(--md-sys-typescale-headline-large-size)/var(--md-sys-typescale-headline-large-line-height) var(--md-sys-typescale-headline-large-font); letter-spacing: var(--md-sys-typescale-headline-large-tracking); }
+.md-headline-medium { font: var(--md-sys-typescale-headline-medium-weight) var(--md-sys-typescale-headline-medium-size)/var(--md-sys-typescale-headline-medium-line-height) var(--md-sys-typescale-headline-medium-font); letter-spacing: var(--md-sys-typescale-headline-medium-tracking); }
+.md-headline-small { font: var(--md-sys-typescale-headline-small-weight) var(--md-sys-typescale-headline-small-size)/var(--md-sys-typescale-headline-small-line-height) var(--md-sys-typescale-headline-small-font); letter-spacing: var(--md-sys-typescale-headline-small-tracking); }
+.md-title-large { font: var(--md-sys-typescale-title-large-weight) var(--md-sys-typescale-title-large-size)/var(--md-sys-typescale-title-large-line-height) var(--md-sys-typescale-title-large-font); letter-spacing: var(--md-sys-typescale-title-large-tracking); }
+.md-title-medium { font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/var(--md-sys-typescale-title-medium-line-height) var(--md-sys-typescale-title-medium-font); letter-spacing: var(--md-sys-typescale-title-medium-tracking); }
+.md-title-small { font: var(--md-sys-typescale-title-small-weight) var(--md-sys-typescale-title-small-size)/var(--md-sys-typescale-title-small-line-height) var(--md-sys-typescale-title-small-font); letter-spacing: var(--md-sys-typescale-title-small-tracking); }
+.md-body-large { font: var(--md-sys-typescale-body-large-weight) var(--md-sys-typescale-body-large-size)/var(--md-sys-typescale-body-large-line-height) var(--md-sys-typescale-body-large-font); letter-spacing: var(--md-sys-typescale-body-large-tracking); }
+.md-body-medium { font: var(--md-sys-typescale-body-medium-weight) var(--md-sys-typescale-body-medium-size)/var(--md-sys-typescale-body-medium-line-height) var(--md-sys-typescale-body-medium-font); letter-spacing: var(--md-sys-typescale-body-medium-tracking); }
+.md-body-small { font: var(--md-sys-typescale-body-small-weight) var(--md-sys-typescale-body-small-size)/var(--md-sys-typescale-body-small-line-height) var(--md-sys-typescale-body-small-font); letter-spacing: var(--md-sys-typescale-body-small-tracking); }
+.md-label-large { font: var(--md-sys-typescale-label-large-weight) var(--md-sys-typescale-label-large-size)/var(--md-sys-typescale-label-large-line-height) var(--md-sys-typescale-label-large-font); letter-spacing: var(--md-sys-typescale-label-large-tracking); }
+.md-label-medium { font: var(--md-sys-typescale-label-medium-weight) var(--md-sys-typescale-label-medium-size)/var(--md-sys-typescale-label-medium-line-height) var(--md-sys-typescale-label-medium-font); letter-spacing: var(--md-sys-typescale-label-medium-tracking); }
+.md-label-small { font: var(--md-sys-typescale-label-small-weight) var(--md-sys-typescale-label-small-size)/var(--md-sys-typescale-label-small-line-height) var(--md-sys-typescale-label-small-font); letter-spacing: var(--md-sys-typescale-label-small-tracking); }
+
+/* --------------------------------------------------------------------------
+   2. Focus Ring & State Layer Mechanics
+   -------------------------------------------------------------------------- */
+:where(.md-btn, .md-icon-btn, .md-fab, .md-chip, .md-card--interactive, .md-nav-item):focus-visible {
+  outline: var(--md-sys-state-focus-indicator-thickness) solid var(--md-sys-color-secondary);
+  outline-offset: var(--md-sys-state-focus-indicator-outer-offset);
+}
+
+/* --------------------------------------------------------------------------
+   3. Buttons (5 Styles × 5 M3 Expressive Sizes + Shape Morph)
+   -------------------------------------------------------------------------- */
+.md-btn {
+  --_bg: var(--md-sys-color-primary);
+  --_fg: var(--md-sys-color-on-primary);
+  --_outline: transparent;
+  --_height: 40px;
+  --_pad-x: 16px;
+  --_gap: 8px;
+  --_icon-size: 20px;
+  --_radius: var(--md-sys-shape-corner-full);
+  --_radius-square: var(--md-sys-shape-corner-medium);
+  --_radius-pressed: var(--md-sys-shape-corner-small);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_gap);
+  height: var(--_height);
+  padding-inline: var(--_pad-x);
+  border-radius: var(--_radius);
+  border: 1px solid var(--_outline);
+  background-color: var(--_bg);
+  color: var(--_fg);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  line-height: var(--md-sys-typescale-label-large-line-height);
+  letter-spacing: var(--md-sys-typescale-label-large-tracking);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-radius var(--md-sys-motion-spring-fast-spatial),
+    background-color var(--md-sys-motion-spring-fast-effects),
+    box-shadow var(--md-sys-motion-spring-fast-effects);
+}
+
+.md-btn:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--_fg) 8%, var(--_bg));
+}
+.md-btn:active:not(:disabled) {
+  background-color: color-mix(in srgb, var(--_fg) 10%, var(--_bg));
+  border-radius: var(--_radius-pressed);
+}
+.md-btn--square,
+.md-btn[aria-pressed="true"] {
+  border-radius: var(--_radius-square);
+}
+.md-btn:disabled {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
+  border-color: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Color Configurations */
+.md-btn--filled { --_bg: var(--md-sys-color-primary); --_fg: var(--md-sys-color-on-primary); }
+.md-btn--filled[aria-pressed="false"] { --_bg: var(--md-sys-color-surface-container); --_fg: var(--md-sys-color-on-surface-variant); }
+
+.md-btn--tonal { --_bg: var(--md-sys-color-secondary-container); --_fg: var(--md-sys-color-on-secondary-container); }
+.md-btn--tonal[aria-pressed="true"] { --_bg: var(--md-sys-color-secondary); --_fg: var(--md-sys-color-on-secondary); }
+
+.md-btn--elevated {
+  --_bg: var(--md-sys-color-surface-container-low);
+  --_fg: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+.md-btn--elevated:hover:not(:disabled) { box-shadow: var(--md-sys-elevation-level2); }
+.md-btn--elevated[aria-pressed="true"] { --_bg: var(--md-sys-color-primary); --_fg: var(--md-sys-color-on-primary); }
+
+.md-btn--outlined {
+  --_bg: transparent;
+  --_fg: var(--md-sys-color-on-surface-variant);
+  --_outline: var(--md-sys-color-outline-variant);
+}
+.md-btn--outlined[aria-pressed="true"] {
+  --_bg: var(--md-sys-color-inverse-surface);
+  --_fg: var(--md-sys-color-inverse-on-surface);
+  --_outline: transparent;
+}
+
+.md-btn--text {
+  --_bg: transparent;
+  --_fg: var(--md-sys-color-primary);
+  --_pad-x: 12px;
+}
+
+/* M3 Expressive 5 Button Sizes */
+.md-btn--xs {
+  --_height: 32px; --_pad-x: 12px; --_gap: 4px; --_icon-size: 20px;
+  --_radius-square: var(--md-sys-shape-corner-medium);
+  --_radius-pressed: var(--md-sys-shape-corner-small);
+}
+.md-btn--s {
+  --_height: 40px; --_pad-x: 16px; --_gap: 8px; --_icon-size: 20px;
+  --_radius-square: var(--md-sys-shape-corner-medium);
+  --_radius-pressed: var(--md-sys-shape-corner-small);
+}
+.md-btn--m {
+  --_height: 56px; --_pad-x: 24px; --_gap: 8px; --_icon-size: 24px;
+  --_radius-square: var(--md-sys-shape-corner-large);
+  --_radius-pressed: var(--md-sys-shape-corner-medium);
+  font-size: var(--md-sys-typescale-title-medium-size);
+  line-height: var(--md-sys-typescale-title-medium-line-height);
+}
+.md-btn--l {
+  --_height: 96px; --_pad-x: 48px; --_gap: 12px; --_icon-size: 32px;
+  --_radius-square: var(--md-sys-shape-corner-extra-large);
+  --_radius-pressed: var(--md-sys-shape-corner-large);
+  font-size: var(--md-sys-typescale-headline-small-size);
+  line-height: var(--md-sys-typescale-headline-small-line-height);
+}
+.md-btn--xl {
+  --_height: 136px; --_pad-x: 64px; --_gap: 16px; --_icon-size: 40px;
+  --_radius-square: var(--md-sys-shape-corner-extra-large);
+  --_radius-pressed: var(--md-sys-shape-corner-large);
+  font-size: var(--md-sys-typescale-headline-large-size);
+  line-height: var(--md-sys-typescale-headline-large-line-height);
+}
+
+/* --------------------------------------------------------------------------
+   4. Connected Button Group (M3 Expressive)
+   -------------------------------------------------------------------------- */
+.md-btn-group--connected {
+  display: inline-flex;
+  gap: 2px;
+}
+.md-btn-group--connected > .md-btn {
+  border-radius: var(--md-sys-shape-corner-small);
+}
+.md-btn-group--connected > .md-btn:first-child {
+  border-top-left-radius: var(--md-sys-shape-corner-full);
+  border-bottom-left-radius: var(--md-sys-shape-corner-full);
+}
+.md-btn-group--connected > .md-btn:last-child {
+  border-top-right-radius: var(--md-sys-shape-corner-full);
+  border-bottom-right-radius: var(--md-sys-shape-corner-full);
+}
+.md-btn-group--connected > .md-btn[aria-pressed="true"] {
+  border-radius: var(--md-sys-shape-corner-full);
+}
+
+/* --------------------------------------------------------------------------
+   5. Floating Action Button (FAB & Extended FAB — M3 Expressive)
+   -------------------------------------------------------------------------- */
+.md-fab {
+  --_bg: var(--md-sys-color-primary-container);
+  --_fg: var(--md-sys-color-on-primary-container);
+  --_size: 56px;
+  --_radius: var(--md-sys-shape-corner-large);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: var(--_size);
+  height: var(--_size);
+  padding-inline: 16px;
+  border: none;
+  border-radius: var(--_radius);
+  background-color: var(--_bg);
+  color: var(--_fg);
+  box-shadow: var(--md-sys-elevation-level3);
+  font: var(--md-sys-typescale-title-medium-weight) var(--md-sys-typescale-title-medium-size)/var(--md-sys-typescale-title-medium-line-height) var(--md-sys-typescale-title-medium-font);
+  cursor: pointer;
+  transition: box-shadow var(--md-sys-motion-spring-fast-effects), background-color var(--md-sys-motion-spring-fast-effects), border-radius var(--md-sys-motion-spring-fast-spatial);
+}
+.md-fab:hover {
+  box-shadow: var(--md-sys-elevation-level4);
+  background-color: color-mix(in srgb, var(--_fg) 8%, var(--_bg));
+}
+.md-fab--medium { --_size: 80px; --_radius: var(--md-sys-shape-corner-large-increased); padding-inline: 26px; }
+.md-fab--large { --_size: 96px; --_radius: var(--md-sys-shape-corner-extra-large); padding-inline: 28px; }
+.md-fab--primary { --_bg: var(--md-sys-color-primary); --_fg: var(--md-sys-color-on-primary); }
+.md-fab--secondary { --_bg: var(--md-sys-color-secondary-container); --_fg: var(--md-sys-color-on-secondary-container); }
+.md-fab--tertiary { --_bg: var(--md-sys-color-tertiary-container); --_fg: var(--md-sys-color-on-tertiary-container); }
+
+/* --------------------------------------------------------------------------
+   6. Cards (Elevated, Filled, Outlined)
+   -------------------------------------------------------------------------- */
+.md-card {
+  border-radius: var(--md-sys-shape-corner-medium);
+  padding: 16px;
+  color: var(--md-sys-color-on-surface);
+  transition: box-shadow var(--md-sys-motion-spring-fast-effects), background-color var(--md-sys-motion-spring-fast-effects);
+}
+.md-card--elevated {
+  background-color: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-level1);
+}
+.md-card--filled {
+  background-color: var(--md-sys-color-surface-container-highest);
+}
+.md-card--outlined {
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+.md-card--interactive { cursor: pointer; }
+.md-card--interactive:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, var(--md-sys-color-surface-container-low));
+  box-shadow: var(--md-sys-elevation-level2);
+}
+
+/* --------------------------------------------------------------------------
+   7. Chips (Assist, Filter, Input, Suggestion)
+   -------------------------------------------------------------------------- */
+.md-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding-inline: 16px;
+  border-radius: var(--md-sys-shape-corner-small);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background-color: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-large-weight) var(--md-sys-typescale-label-large-size)/var(--md-sys-typescale-label-large-line-height) var(--md-sys-typescale-label-large-font);
+  cursor: pointer;
+}
+.md-chip[aria-selected="true"],
+.md-chip[aria-pressed="true"] {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   8. Navigation Bar, Navigation Rail & Floating Toolbar (M3 Expressive)
+   -------------------------------------------------------------------------- */
+.md-nav-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 64px;
+  background-color: var(--md-sys-color-surface-container);
+  padding-inline: 8px;
+}
+.md-nav-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  min-height: 100vh;
+  padding-block: 16px;
+  gap: 12px;
+  background-color: var(--md-sys-color-surface);
+}
+.md-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: none;
+  font: var(--md-sys-typescale-label-medium-weight) var(--md-sys-typescale-label-medium-size)/var(--md-sys-typescale-label-medium-line-height) var(--md-sys-typescale-label-medium-font);
+}
+.md-nav-item__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 32px;
+  border-radius: var(--md-sys-shape-corner-full);
+  transition: background-color var(--md-sys-motion-spring-fast-effects);
+}
+.md-nav-item[aria-current="page"] { color: var(--md-sys-color-on-surface); font-weight: 700; }
+.md-nav-item[aria-current="page"] .md-nav-item__indicator {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* Floating Pill Toolbar (M3 Expressive) */
+.md-toolbar--floating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 64px;
+  padding-inline: 8px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background-color: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+.md-toolbar--vibrant {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+/* --------------------------------------------------------------------------
+   9. Dialog, Bottom Sheet & Snackbar
+   -------------------------------------------------------------------------- */
+.md-dialog {
+  min-width: 280px;
+  max-width: 560px;
+  padding: 24px;
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.md-bottom-sheet {
+  width: 100%;
+  max-width: 640px;
+  border-radius: var(--md-sys-shape-corner-extra-large) var(--md-sys-shape-corner-extra-large) 0 0;
+  background-color: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-level1);
+  padding: 0 24px 24px;
+}
+.md-bottom-sheet__handle {
+  width: 32px;
+  height: 4px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background-color: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 40%, transparent);
+  margin: 22px auto;
+}
+
+.md-snackbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 16px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background-color: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+/* --------------------------------------------------------------------------
+   10. m3.material.io Do / Don't / Caution Callout Figure
+   -------------------------------------------------------------------------- */
+.mio-callout {
+  display: flex;
+  flex-direction: column;
+}
+.mio-callout__media {
+  border-radius: 16px 16px 2px 2px;
+  overflow: hidden;
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+.mio-callout__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 2px 2px 16px 16px;
+  font: var(--md-sys-typescale-label-large-weight) var(--md-sys-typescale-label-large-size)/var(--md-sys-typescale-label-large-line-height) var(--md-sys-typescale-label-large-font);
+}
+.mio-callout__bar--do { background-color: #34be4d; color: #11371d; }
+.mio-callout__bar--dont { background-color: #ff6240; color: #490909; }
+.mio-callout__bar--caution { background-color: #ffce22; color: #3a2900; }

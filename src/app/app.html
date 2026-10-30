@@ -1,0 +1,1374 @@
+<div class="sona-shell">
+  <!-- ======================================================================
+       1. Top Atelier Privilege Ribbon
+       ====================================================================== -->
+  <div class="atelier-ribbon" role="region" aria-label="Store announcements">
+    <div class="ribbon-inner">
+      <span class="ribbon-item">
+        <span class="ms-icon filled">verified</span>
+        Complimentary Express Air Courier over €500
+      </span>
+      <span class="ribbon-dot">·</span>
+      <span class="ribbon-item">
+        <span class="ms-icon">precision_manufacturing</span>
+        5-Year Copenhagen &amp; Tokyo Atelier Warranty
+      </span>
+      <span class="ribbon-dot">·</span>
+      <span class="ribbon-item">
+        <span class="ms-icon">palette</span>
+        Live M3 Dynamic HCT Theme: <strong>{{ theme.seedColor() }}</strong> (Use <code>SONA10</code> for 10% off)
+      </span>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       2. Sticky M3 Top App Bar (Flat Surface at Rest -> Surface Container Level 2 on Scroll)
+       ====================================================================== -->
+  <header class="sona-app-bar" [class.scrolled]="isScrolled()">
+    <div class="app-bar-container">
+      <!-- Brand Identity -->
+      <a href="#hero" class="brand-identity" (click)="$event.preventDefault(); scrollToSection('hero')">
+        <span class="brand-monogram">
+          <span class="ms-icon filled">graphic_eq</span>
+        </span>
+        <div class="brand-text">
+          <span class="brand-name">SONA ATELIER</span>
+          <span class="brand-sub">COPENHAGEN · TOKYO</span>
+        </div>
+      </a>
+
+      <!-- Primary Section Pill Links -->
+      <nav class="primary-nav" aria-label="Main storefront navigation">
+        <button
+          type="button"
+          class="nav-pill-btn"
+          [class.active]="activeSection() === 'hero'"
+          (click)="scrollToSection('hero')">
+          Flagship
+        </button>
+        <button
+          type="button"
+          class="nav-pill-btn"
+          [class.active]="activeSection() === 'lookbook'"
+          (click)="scrollToSection('lookbook')">
+          Lookbook
+        </button>
+        <button
+          type="button"
+          class="nav-pill-btn"
+          [class.active]="activeSection() === 'catalog'"
+          (click)="scrollToSection('catalog')">
+          Objects ({{ products.length }})
+        </button>
+        <button
+          type="button"
+          class="nav-pill-btn"
+          [class.active]="activeSection() === 'acoustic-lab'"
+          (click)="scrollToSection('acoustic-lab')">
+          Acoustic Lab
+        </button>
+        <button
+          type="button"
+          class="nav-pill-btn"
+          [class.active]="activeSection() === 'atelier-story'"
+          (click)="scrollToSection('atelier-story')">
+          Craft &amp; Bundle
+        </button>
+      </nav>
+
+      <!-- Trailing Search Pill, HCT Theme Studio & Bag Actions -->
+      <div class="app-bar-actions">
+        <!-- 56dp Search Pill Trigger -->
+        <button
+          type="button"
+          class="search-pill-trigger"
+          (click)="searchModalOpen.set(true)"
+          aria-label="Search acoustic objects">
+          <span class="ms-icon">search</span>
+          <span class="search-placeholder">Search objects, specs...</span>
+          <kbd>⌘K</kbd>
+        </button>
+
+        <!-- Dynamic HCT Material Finish Switcher -->
+        <button
+          type="button"
+          class="m3-icon-btn m3-icon-btn--tonal"
+          [attr.aria-pressed]="themeDrawerOpen()"
+          (click)="themeDrawerOpen.set(!themeDrawerOpen())"
+          matTooltip="Dynamic HCT Material Theme & Contrast">
+          <span class="ms-icon" [class.filled]="themeDrawerOpen()">palette</span>
+        </button>
+
+        <!-- Light / Dark Surface Toggle -->
+        <button
+          type="button"
+          class="m3-icon-btn m3-icon-btn--outlined"
+          (click)="theme.themeMode.set(theme.themeMode() === 'light' ? 'dark' : 'light')"
+          [matTooltip]="theme.themeMode() === 'light' ? 'Switch to Dark Studio (Surface T6)' : 'Switch to Daylight Gallery (Surface T98)'">
+          <span class="ms-icon filled">{{ theme.themeMode() === 'light' ? 'dark_mode' : 'light_mode' }}</span>
+        </button>
+
+        <!-- Saved Wishlist Button with M3 Badge -->
+        <button
+          type="button"
+          class="m3-icon-btn m3-icon-btn--outlined badge-host"
+          (click)="scrollToSection('catalog'); notify('You have ' + wishlistIds().size + ' saved objects in your wishlist')"
+          matTooltip="Saved Atelier Objects">
+          <span class="ms-icon" [class.filled]="wishlistIds().size > 0">favorite</span>
+          @if (wishlistIds().size > 0) {
+            <span class="m3-badge-large tabular-nums">{{ wishlistIds().size }}</span>
+          }
+        </button>
+
+        <!-- Shopping Bag CTA Pill -->
+        <button
+          type="button"
+          class="m3-btn m3-btn--filled m3-btn--s bag-trigger-btn"
+          (click)="cartOpen.set(true); checkoutStep.set('bag')">
+          <span class="ms-icon filled">shopping_bag</span>
+          <span>Bag</span>
+          <span class="bag-count-pill tabular-nums">{{ cartCount() }} · €{{ cartSubtotal() }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Dynamic HCT Finish & Accessibility Bar -->
+    @if (themeDrawerOpen()) {
+      <div class="hct-quick-bar">
+        <div class="hct-bar-inner">
+          <div class="hct-group">
+            <span class="hct-label">Industrial Finish Seed (HCT):</span>
+            <div class="hct-swatches">
+              @for (preset of theme.presets; track preset.hex) {
+                <button
+                  type="button"
+                  class="finish-theme-chip"
+                  [class.active]="theme.seedColor().toUpperCase() === preset.hex.toUpperCase()"
+                  (click)="theme.seedColor.set(preset.hex)">
+                  <span class="dot" [style.background-color]="preset.hex"></span>
+                  <span>{{ preset.name }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="hct-group">
+            <span class="hct-label">Contrast:</span>
+            <div class="m3-connected-group">
+              @for (c of ['standard', 'medium', 'high']; track c) {
+                <button
+                  type="button"
+                  class="m3-btn m3-btn--tonal m3-btn--xs"
+                  [attr.aria-pressed]="theme.contrastLevel() === c"
+                  (click)="setContrast($any(c))">
+                  {{ c | titlecase }}
+                </button>
+              }
+            </div>
+
+            <mat-slide-toggle
+              [checked]="dynamicThemeOnProductClick()"
+              (change)="dynamicThemeOnProductClick.set($event.checked)">
+              Auto-sync theme to selected finish
+            </mat-slide-toggle>
+          </div>
+        </div>
+      </div>
+    }
+  </header>
+
+  <main class="sona-main">
+    <!-- ====================================================================
+         3. FLAGSHIP SPLIT HERO SECTION (Editorial Left + Concentric Studio Shot Right)
+         ==================================================================== -->
+    <section id="hero" class="hero-section" aria-label="Flagship Atelier Collection">
+      <div class="hero-split-grid">
+        <!-- Left Column: Emphasized Editorial Storytelling (`surface-container-low`, 32dp radius) -->
+        <div class="hero-editorial-card">
+          <div class="hero-top-content">
+            <div class="hero-badges">
+              <span class="tag-pill tag-primary">SERIES 04 · ARCHITECTURAL AUDIO</span>
+              <span class="tag-pill">CNC ANODIZED ALUMINUM &amp; TRAVERTINE</span>
+            </div>
+
+            <h1 class="hero-display-title">
+              Sculpted sound for architectural spaces.
+            </h1>
+
+            <p class="hero-lead-copy">
+              Precision-milled in Copenhagen and acoustic-tuned in Tokyo. Every Sona object pairs
+              custom planar magnetic drivers with solid Roman travertine, anodized terracotta aluminum,
+              and tactile brass controls built to last decades.
+            </p>
+
+            <!-- Live Material Finish Selector right inside the Hero -->
+            <div class="hero-finish-selector">
+              <div class="selector-header">
+                <span class="selector-title">Experience Content-Based Dynamic Color (HCT):</span>
+                <span class="selector-active tabular-nums">Seed {{ theme.seedColor() }} · H{{ theme.seedHct().hue }}° C{{ theme.seedHct().chroma }}</span>
+              </div>
+              <div class="finish-pills-row">
+                @for (preset of theme.presets.slice(0, 4); track preset.hex) {
+                  <button
+                    type="button"
+                    class="hero-finish-pill"
+                    [class.selected]="theme.seedColor().toUpperCase() === preset.hex.toUpperCase()"
+                    (click)="theme.seedColor.set(preset.hex)">
+                    <span class="swatch-circle" [style.background-color]="preset.hex"></span>
+                    <span class="swatch-text">
+                      <strong>{{ preset.name }}</strong>
+                      <small>{{ preset.badge }}</small>
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-bottom-content">
+            <!-- Strict M3 Action Hierarchy: Single High-Emphasis Filled CTA + Secondary Tonal/Outlined -->
+            <div class="hero-cta-row">
+              <button
+                type="button"
+                class="m3-btn m3-btn--filled m3-btn--m"
+                (click)="scrollToSection('catalog')">
+                <span class="ms-icon filled">arrow_downward</span>
+                Explore collection
+              </button>
+
+              <button
+                type="button"
+                class="m3-btn m3-btn--tonal m3-btn--m"
+                (click)="openProductConfigurator(products[0])">
+                <span class="ms-icon">tune</span>
+                Configure Sona One · €690
+              </button>
+
+              <button
+                type="button"
+                class="m3-btn m3-btn--outlined m3-btn--m"
+                (click)="scrollToSection('acoustic-lab')">
+                <span class="ms-icon">graphic_eq</span>
+                Acoustic Lab
+              </button>
+            </div>
+
+            <!-- Key Acoustic & Craft Metrics Bar -->
+            <div class="hero-metrics-grid tabular-nums">
+              <div class="metric-cell">
+                <strong>0.02% THD</strong>
+                <span>80mm Planar Ribbon</span>
+              </div>
+              <div class="metric-cell">
+                <strong>104 dB SPL</strong>
+                <span>360° Room Calibration</span>
+              </div>
+              <div class="metric-cell">
+                <strong>48 Hours</strong>
+                <span>Lossless Autonomy</span>
+              </div>
+              <div class="metric-cell">
+                <strong>4.96 ★</strong>
+                <span>1,840+ Studio Reviews</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Concentric Media Frame (32dp Outer - 12dp Padding = 20dp Inner Radius) -->
+        <div class="hero-media-outer">
+          <div class="hero-media-inner">
+            <img
+              src="/images/hero-flagship.png"
+              alt="Sona Atelier flagship terracotta speaker and planar magnetic headphones on a honed travertine plinth"
+              class="hero-studio-img" />
+
+            <!-- Interactive Engineering Hotspot Pins -->
+            @for (spot of heroHotspots; track spot.id) {
+              <button
+                type="button"
+                class="hotspot-pin"
+                [class.active]="activeHeroHotspot() === spot.id"
+                [style.left]="spot.x"
+                [style.top]="spot.y"
+                (click)="activeHeroHotspot.set(spot.id)"
+                [attr.aria-label]="spot.title">
+                <span class="pin-core">{{ spot.id + 1 }}</span>
+              </button>
+            }
+
+            <!-- M3 Rich Tooltip Overlay for Active Hotspot + Quick Bundle Add -->
+            <div class="hero-floating-hud">
+              <div class="hud-hotspot-card">
+                <div class="hud-eyebrow">
+                  <span class="ms-icon filled">architecture</span>
+                  <span>HOTSPOT 0{{ activeHeroHotspot() + 1 }} · ACOUSTIC ANATOMY</span>
+                </div>
+                <strong>{{ heroHotspots[activeHeroHotspot()].title }}</strong>
+                <p>{{ heroHotspots[activeHeroHotspot()].detail }}</p>
+              </div>
+
+              <div class="hud-quick-buy">
+                <div class="qb-info">
+                  <span class="qb-kicker">Featured Studio Pair</span>
+                  <strong>Sona One + Monolith Set</strong>
+                  <span class="qb-price tabular-nums">€1,740 <del>€1,980</del></span>
+                </div>
+                <button
+                  type="button"
+                  class="m3-btn m3-btn--filled m3-btn--s"
+                  (click)="addToBag(products[0]); addToBag(products[1])">
+                  <span class="ms-icon filled">add_shopping_cart</span>
+                  Add pair
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         4. M3 MULTI-BROWSE SQUISHING LOOKBOOK CAROUSEL (28dp Radius, 8dp Gap)
+         ==================================================================== -->
+    <section id="lookbook" class="lookbook-section" aria-label="Architectural Spaces Lookbook">
+      <div class="section-header-row">
+        <div>
+          <span class="section-kicker">01 · Architectural Lookbook</span>
+          <h2 class="section-headline">Five spaces, five acoustic instruments</h2>
+          <p class="section-subtitle">
+            Click any architectural card below to expand the focal space and synchronize the store's M3 tonal palette (`28dp` corner radius, `8dp` gap, dynamic spring squishing).
+          </p>
+        </div>
+        <div class="carousel-nav-controls">
+          <button
+            type="button"
+            class="m3-icon-btn m3-icon-btn--tonal"
+            (click)="stepLookbook(-1)"
+            aria-label="Previous lookbook space">
+            <span class="ms-icon">arrow_back</span>
+          </button>
+          <span class="carousel-counter tabular-nums">0{{ activeLookbookIdx() + 1 }} / 0{{ lookbookSlides.length }}</span>
+          <button
+            type="button"
+            class="m3-icon-btn m3-icon-btn--tonal"
+            (click)="stepLookbook(1)"
+            aria-label="Next lookbook space">
+            <span class="ms-icon">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="m3-lookbook-carousel" role="region" aria-label="Multi-browse product lookbook">
+        @for (slide of lookbookSlides; track slide.id; let idx = $index) {
+          <article
+            class="lookbook-card"
+            [class.expanded]="activeLookbookIdx() === idx"
+            [class.neighbor]="Math.abs(activeLookbookIdx() - idx) === 1"
+            (click)="selectLookbookSlide(idx)"
+            tabindex="0"
+            (keydown.enter)="selectLookbookSlide(idx)">
+            <img [src]="slide.image" [alt]="slide.title" class="lookbook-img" loading="lazy" />
+            <div class="lookbook-scrim"></div>
+
+            <div class="lookbook-content">
+              <div class="lookbook-top-tags">
+                <span class="space-pill">{{ slide.indexLabel }}</span>
+                <span class="location-pill">{{ slide.architecturalSpace }}</span>
+              </div>
+
+              <div class="lookbook-bottom-info">
+                <h3>{{ slide.title }}</h3>
+                <p class="lookbook-desc">{{ slide.subtitle }}</p>
+                <div class="lookbook-footer">
+                  <span class="acoustic-spec-badge">
+                    <span class="ms-icon filled">graphic_eq</span>
+                    {{ slide.acousticNote }}
+                  </span>
+                  <button
+                    type="button"
+                    class="m3-btn m3-btn--filled m3-btn--s"
+                    (click)="$event.stopPropagation(); openProductConfigurator(products[idx])">
+                    Inspect object
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         5. FLAGSHIP OBJECTS CATALOG (Filter Chips + Connected Group + Concentric Cards)
+         ==================================================================== -->
+    <section id="catalog" class="catalog-section" aria-label="Sona Atelier Objects Catalog">
+      <div class="section-header-row">
+        <div>
+          <span class="section-kicker">02 · Flagship Collection</span>
+          <h2 class="section-headline">Engineered objects for listening &amp; living</h2>
+          <p class="section-subtitle">
+            Select a hardware finish on any card to preview its color scheme, or open the interactive configurator to add custom laser engraving.
+          </p>
+        </div>
+
+        <!-- Connected Button Group for Sort & Layout Density -->
+        <div class="catalog-toolbar-right">
+          <div class="m3-connected-group" role="group" aria-label="Sort products">
+            <button
+              type="button"
+              class="m3-btn m3-btn--tonal m3-btn--xs"
+              [attr.aria-pressed]="selectedSort() === 'featured'"
+              (click)="selectedSort.set('featured')">
+              Featured
+            </button>
+            <button
+              type="button"
+              class="m3-btn m3-btn--tonal m3-btn--xs"
+              [attr.aria-pressed]="selectedSort() === 'price-asc'"
+              (click)="selectedSort.set('price-asc')">
+              Price ↑
+            </button>
+            <button
+              type="button"
+              class="m3-btn m3-btn--tonal m3-btn--xs"
+              [attr.aria-pressed]="selectedSort() === 'price-desc'"
+              (click)="selectedSort.set('price-desc')">
+              Price ↓
+            </button>
+            <button
+              type="button"
+              class="m3-btn m3-btn--tonal m3-btn--xs"
+              [attr.aria-pressed]="selectedSort() === 'rating'"
+              (click)="selectedSort.set('rating')">
+              Top rated
+            </button>
+          </div>
+
+          <div class="m3-connected-group hide-mobile" role="group" aria-label="Grid columns">
+            <button
+              type="button"
+              class="m3-btn m3-btn--outlined m3-btn--xs"
+              [attr.aria-pressed]="catalogColumns() === 3"
+              (click)="catalogColumns.set(3)">
+              3 Columns
+            </button>
+            <button
+              type="button"
+              class="m3-btn m3-btn--outlined m3-btn--xs"
+              [attr.aria-pressed]="catalogColumns() === 2"
+              (click)="catalogColumns.set(2)">
+              2 Large
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- M3 Filter Chips Row (32dp height, 8dp small radius, checkmark on selected) -->
+      <div class="filter-chips-bar" role="tablist" aria-label="Product categories">
+        @for (cat of categories; track cat.id) {
+          <button
+            type="button"
+            class="m3-filter-chip"
+            [class.selected]="selectedCategory() === cat.id"
+            (click)="selectedCategory.set(cat.id)">
+            <span class="ms-icon" [class.filled]="selectedCategory() === cat.id">
+              {{ selectedCategory() === cat.id ? 'check' : cat.icon }}
+            </span>
+            <span>{{ cat.label }}</span>
+            <span class="chip-count tabular-nums">{{ cat.count }}</span>
+          </button>
+        }
+      </div>
+
+      <!-- Responsive Product Grid (Concentric 24dp Outer Card / 16dp Inner Studio Image) -->
+      <div class="products-grid" [class.cols-2]="catalogColumns() === 2">
+        @for (product of filteredProducts(); track product.id) {
+          <article class="product-card">
+            <!-- Concentric Inner Image Container (16dp radius) -->
+            <div class="product-media-box" (click)="openProductConfigurator(product)">
+              <img [src]="product.image" [alt]="product.name + ' — ' + product.subtitle" class="product-img" loading="lazy" />
+
+              <div class="media-top-overlay">
+                @if (product.badge) {
+                  <span class="product-badge" [ngClass]="'badge-' + (product.badgeType || 'new')">
+                    {{ product.badge }}
+                  </span>
+                }
+                <!-- M3 Toggle Icon Button (Round Outlined -> Square 16dp Filled on Wishlist Select) -->
+                <button
+                  type="button"
+                  class="wishlist-toggle-btn"
+                  [attr.aria-pressed]="isWishlisted(product.id)"
+                  (click)="toggleWishlist(product, $event)"
+                  [matTooltip]="isWishlisted(product.id) ? 'Saved in Wishlist' : 'Save to Wishlist'">
+                  <span class="ms-icon" [class.filled]="isWishlisted(product.id)">favorite</span>
+                </button>
+              </div>
+
+              <div class="media-bottom-specs">
+                @for (hl of product.highlights; track hl) {
+                  <span class="spec-micro-pill">{{ hl }}</span>
+                }
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="product-card-body">
+              <div class="product-meta-row">
+                <span class="product-cat">{{ product.categoryLabel }}</span>
+                <span class="product-rating tabular-nums">
+                  <span class="ms-icon filled star-ic">star</span>
+                  <strong>{{ product.rating }}</strong>
+                  <span>({{ product.reviewsCount }})</span>
+                </span>
+              </div>
+
+              <div class="product-title-row" (click)="openProductConfigurator(product)">
+                <div>
+                  <h3 class="product-name">{{ product.name }}</h3>
+                  <p class="product-subtitle">{{ product.subtitle }}</p>
+                </div>
+                <div class="product-price-block tabular-nums">
+                  <span class="price-current">€{{ product.price }}</span>
+                  @if (product.originalPrice) {
+                    <del class="price-old">€{{ product.originalPrice }}</del>
+                  }
+                </div>
+              </div>
+
+              <p class="product-tagline">{{ product.tagline }}</p>
+
+              <!-- Interactive Hardware Finish Swatches -->
+              <div class="product-finish-bar">
+                <span class="finish-label">
+                  Finish: <strong>{{ getSelectedFinish(product).name }}</strong>
+                </span>
+                <div class="finish-dots">
+                  @for (fin of product.finishes; track fin.name) {
+                    <button
+                      type="button"
+                      class="finish-dot-btn"
+                      [class.selected]="getSelectedFinish(product).name === fin.name"
+                      [style.background-color]="fin.hex"
+                      [matTooltip]="fin.name"
+                      (click)="selectProductFinish(product, fin, $event)">
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Card Action Row: Outlined Secondary Left + Primary/Toggle Right -->
+              <div class="product-actions-row">
+                <button
+                  type="button"
+                  class="m3-btn m3-btn--outlined m3-btn--s"
+                  (click)="openProductConfigurator(product)">
+                  <span class="ms-icon">tune</span>
+                  Configure
+                </button>
+
+                <button
+                  type="button"
+                  class="m3-btn m3-btn--filled m3-btn--s add-bag-btn"
+                  [attr.aria-pressed]="recentlyAddedIds()[product.id]"
+                  (click)="addToBag(product)">
+                  <span class="ms-icon filled">
+                    {{ recentlyAddedIds()[product.id] ? 'check' : 'shopping_bag' }}
+                  </span>
+                  <span>{{ recentlyAddedIds()[product.id] ? 'Added to bag' : 'Add to bag' }}</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         6. ACOUSTIC DSP LAB (M3 Expressive 5-Size Sliders: XS 16dp to XL 96dp)
+         ==================================================================== -->
+    <section id="acoustic-lab" class="acoustic-lab-section" aria-label="Interactive Acoustic DSP Soundstage Lab">
+      <div class="lab-bento-grid">
+        <!-- Left Card: 5-Size M3 Expressive Sliders Soundstage Simulator -->
+        <div class="m3-surface-card lab-sliders-card">
+          <div class="card-top-split">
+            <div>
+              <span class="section-kicker">03 · Interactive Acoustic Lab</span>
+              <h2 class="card-large-title">Sona DSP Soundstage Simulator</h2>
+              <p class="card-desc">
+                Built with official <strong>M3 Expressive 5-Size Sliders</strong> (`XS 16dp` to `XL 96dp` tracks, `4dp` vertical handle, `6dp` gap, and `4dp` end stop dot). Drag any frequency band or choose a mastering preset.
+              </p>
+            </div>
+
+            <div class="m3-connected-group">
+              @for (p of [
+                { id: 'warm-vinyl', label: 'Warm Analog' },
+                { id: 'studio-flat', label: 'Studio Reference' },
+                { id: 'spatial-cinema', label: '360° Spatial' },
+                { id: 'late-night', label: 'Late Night' }
+              ]; track p.id) {
+                <button
+                  type="button"
+                  class="m3-btn m3-btn--tonal m3-btn--xs"
+                  [attr.aria-pressed]="activeDspPreset() === p.id"
+                  (click)="applyDspPreset($any(p.id))">
+                  {{ p.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="expressive-sliders-stack">
+            @for (band of [
+              { key: 'subBass', label: '32 Hz · Sub-Bass Foundation (XS 16dp Track)', trackH: 16, handleH: 44, radius: 8, icon: '' },
+              { key: 'warmMid', label: '250 Hz · Travertine Warmth & Body (S 24dp Track)', trackH: 24, handleH: 44, radius: 8, icon: '' },
+              { key: 'vocalPresence', label: '1.8 kHz · Intimate Vocal Presence (M 40dp Track)', trackH: 40, handleH: 52, radius: 12, icon: 'mic' },
+              { key: 'ribbonAir', label: '16 kHz · Planar Ribbon Air & Harmonics (L 56dp Track)', trackH: 56, handleH: 68, radius: 16, icon: 'blur_on' },
+              { key: 'spatialStage', label: '360° · Holographic Room Dispersion (XL 96dp Hero Track)', trackH: 96, handleH: 108, radius: 28, icon: 'surround_sound' }
+            ]; track band.key) {
+              <div class="exp-slider-row">
+                <div class="exp-slider-header">
+                  <span>{{ band.label }}</span>
+                  <strong class="tabular-nums">{{ $any(dspProfile())[band.key] }} dB%</strong>
+                </div>
+                <div class="exp-slider-control" [style.height.px]="band.handleH">
+                  <input
+                    type="range"
+                    min="10"
+                    max="95"
+                    class="exp-slider-input"
+                    [ngModel]="$any(dspProfile())[band.key]"
+                    (ngModelChange)="updateDspBand($any(band.key), $event)" />
+                  <div
+                    class="exp-track-active"
+                    [style.height.px]="band.trackH"
+                    [style.border-radius]="band.radius + 'px 2px 2px ' + band.radius + 'px'"
+                    [style.width]="'calc(' + $any(dspProfile())[band.key] + '% - 8px)'">
+                    @if (band.icon) {
+                      <span class="ms-icon filled exp-inset-icon">{{ band.icon }}</span>
+                    }
+                  </div>
+                  <div
+                    class="exp-vertical-handle"
+                    [style.height.px]="band.handleH"
+                    [style.left]="$any(dspProfile())[band.key] + '%'"></div>
+                  <div
+                    class="exp-track-inactive"
+                    [style.height.px]="band.trackH"
+                    [style.border-radius]="'2px ' + band.radius + 'px ' + band.radius + 'px 2px'"
+                    [style.width]="'calc(' + (100 - $any(dspProfile())[band.key]) + '% - 8px)'">
+                    <span class="exp-stop-dot"></span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right Card: Editorial Craftsmanship Photo + Modular Sustainability -->
+        <div class="m3-surface-card craft-editorial-card">
+          <div class="craft-photo-frame">
+            <img
+              src="/images/lookbook-atelier.png"
+              alt="Macro close-up of Sona Atelier CNC-milled anodized aluminum grille and knurled brass rotary crown"
+              class="craft-img"
+              loading="lazy" />
+            <span class="craft-caption-badge">
+              <span class="ms-icon filled">precision_manufacturing</span>
+              5-Axis CNC Milled in Copenhagen · 0.01mm Tolerance
+            </span>
+          </div>
+
+          <div class="craft-story-body">
+            <span class="section-kicker">Right to Repair · Built for 25+ Years</span>
+            <h3>Modular acoustics, zero planned obsolescence</h3>
+            <p>
+              Every battery cell, planar diaphragm, and wireless streaming module in a Sona object can be swapped in under 4 minutes using a single Torx T6 driver included in the presentation box.
+            </p>
+
+            <div class="craft-pillars-grid">
+              <div class="pillar-box">
+                <span class="ms-icon filled">battery_charging_full</span>
+                <strong> modular Li-Ion Bay</strong>
+                <span>User-replaceable battery pack</span>
+              </div>
+              <div class="pillar-box">
+                <span class="ms-icon filled">recycling</span>
+                <strong>100% Recycled 6061</strong>
+                <span>Hydro-powered Scandinavian aluminum</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         7. BESPOKE ATELIER BUNDLE BUILDER (M3 Expressive Segmented List — 2dp Gap)
+         ==================================================================== -->
+    <section id="atelier-story" class="bundle-section" aria-label="Bespoke Atelier Bundle Configurator">
+      <div class="m3-surface-card bundle-card">
+        <div class="bundle-grid">
+          <div class="bundle-left">
+            <span class="section-kicker">04 · Bespoke Studio Curations</span>
+            <h2 class="card-large-title">Curate your multi-room architectural system</h2>
+            <p class="card-desc">
+              Select any <strong>2 objects for 12% off</strong> or <strong>3+ objects for 15% off</strong>. Built with an authentic <strong>M3 Expressive Segmented List</strong> (`2dp` vertical gap, `16dp` outer corners, `4dp` inner corners morphing to `16dp` `secondary-container` when selected).
+            </p>
+
+            <!-- M3 Expressive Segmented List -->
+            <div class="m3-segmented-list" role="listbox" aria-label="Select objects for bundle">
+              @for (item of products.slice(0, 4); track item.id) {
+                <div
+                  class="m3-segmented-item"
+                  [class.selected]="bundleSelection()[item.id]"
+                  role="option"
+                  tabindex="0"
+                  [attr.aria-selected]="bundleSelection()[item.id]"
+                  (click)="toggleBundleProduct(item.id)"
+                  (keydown.enter)="toggleBundleProduct(item.id)"
+                  (keydown.space)="$event.preventDefault(); toggleBundleProduct(item.id)">
+                  <img [src]="item.image" [alt]="item.name" class="seg-thumb" />
+                  <div class="seg-info">
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.subtitle }}</span>
+                  </div>
+                  <div class="seg-price tabular-nums">€{{ item.price }}</div>
+                  <div class="seg-check">
+                    <span class="ms-icon" [class.filled]="bundleSelection()[item.id]">
+                      {{ bundleSelection()[item.id] ? 'check_circle' : 'add_circle_outline' }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Bundle Summary Receipt Card -->
+          <div class="bundle-summary-box">
+            <div class="summary-top">
+              <span class="summary-overline">ATELIER SYSTEM SUMMARY</span>
+              <h3 class="tabular-nums">{{ bundleSummary().items.length }} Selected Objects</h3>
+              @if (bundleSummary().discountRate > 0) {
+                <span class="discount-active-pill">
+                  <span class="ms-icon filled">auto_awesome</span>
+                  {{ bundleSummary().discountRate }}% Multi-Object Privilege Unlocked
+                </span>
+              } @else {
+                <span class="discount-hint-pill">Select at least 2 objects to unlock 12% savings</span>
+              }
+            </div>
+
+            <div class="summary-selected-chips">
+              @for (chosen of bundleSummary().items; track chosen.id) {
+                <div class="chosen-row tabular-nums">
+                  <span>{{ chosen.name }} ({{ getSelectedFinish(chosen).name }})</span>
+                  <strong>€{{ chosen.price }}</strong>
+                </div>
+              }
+            </div>
+
+            <div class="summary-totals tabular-nums">
+              <div class="tot-line">
+                <span>Standard Atelier Value</span>
+                <span>€{{ bundleSummary().rawTotal }}</span>
+              </div>
+              <div class="tot-line savings">
+                <span>Architectural Bundle Privilege ({{ bundleSummary().discountRate }}%)</span>
+                <span>-€{{ bundleSummary().discountAmount }}</span>
+              </div>
+              <div class="tot-line grand">
+                <span>Configured System Total</span>
+                <strong>€{{ bundleSummary().finalTotal }}</strong>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="m3-btn m3-btn--filled m3-btn--m full-width-btn"
+              [disabled]="bundleSummary().items.length === 0"
+              (click)="addBundleToBag()">
+              <span class="ms-icon filled">shopping_bag</span>
+              Add curated system to bag · €{{ bundleSummary().finalTotal }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       8. FLAGSHIP EDITORIAL FOOTER
+       ====================================================================== -->
+  <footer class="sona-footer">
+    <div class="footer-inner">
+      <div class="footer-brand-col">
+        <div class="brand-identity">
+          <span class="brand-monogram">
+            <span class="ms-icon filled">graphic_eq</span>
+          </span>
+          <div class="brand-text">
+            <span class="brand-name">SONA ATELIER</span>
+            <span class="brand-sub">SCULPTURAL ACOUSTICS · M3 EXPRESSIVE</span>
+          </div>
+        </div>
+        <p class="footer-copy">
+          Engineered with Angular 21, Angular Material 3, and real-time HCT perceptual tonal palettes from the official <code>material-design-3</code> skill.
+        </p>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Flagship Objects</h4>
+        @for (p of products.slice(0, 4); track p.id) {
+          <button type="button" class="footer-link" (click)="openProductConfigurator(p)">
+            {{ p.name }} — €{{ p.price }}
+          </button>
+        }
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Atelier Showrooms</h4>
+        <span>Bredgade 45, 1260 København K</span>
+        <span>Minami-Aoyama 5-7, Minato-ku, Tokyo</span>
+        <span>Ilica 42, 10000 Zagreb</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================================
+       9. FLOATING M3 EXPRESSIVE PILL TOOLBAR (64dp) + PAIRED BAG FAB (56dp)
+       ====================================================================== -->
+  <div class="floating-dock-wrapper" role="navigation" aria-label="Quick section toolbar">
+    <div class="m3-floating-toolbar vibrant">
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="activeSection() === 'hero'"
+        (click)="scrollToSection('hero')"
+        matTooltip="Flagship Hero">
+        <span class="ms-icon" [class.filled]="activeSection() === 'hero'">home</span>
+      </button>
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="activeSection() === 'lookbook'"
+        (click)="scrollToSection('lookbook')"
+        matTooltip="Lookbook Carousel">
+        <span class="ms-icon" [class.filled]="activeSection() === 'lookbook'">view_carousel</span>
+      </button>
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="activeSection() === 'catalog'"
+        (click)="scrollToSection('catalog')"
+        matTooltip="Objects Catalog">
+        <span class="ms-icon" [class.filled]="activeSection() === 'catalog'">grid_view</span>
+      </button>
+      <button
+        type="button"
+        class="toolbar-btn"
+        [class.active]="activeSection() === 'acoustic-lab'"
+        (click)="scrollToSection('acoustic-lab')"
+        matTooltip="Acoustic DSP Lab">
+        <span class="ms-icon" [class.filled]="activeSection() === 'acoustic-lab'">tune</span>
+      </button>
+      <button
+        type="button"
+        class="toolbar-btn"
+        (click)="searchModalOpen.set(true)"
+        matTooltip="Quick Search (⌘K)">
+        <span class="ms-icon">search</span>
+      </button>
+    </div>
+
+    <!-- Paired 56×56dp Tertiary-Container FAB (8dp gap per M3 Toolbar Spec) -->
+    <button
+      type="button"
+      class="paired-bag-fab"
+      (click)="cartOpen.set(true); checkoutStep.set('bag')"
+      matTooltip="Open Shopping Bag">
+      <span class="ms-icon filled">shopping_bag</span>
+      @if (cartCount() > 0) {
+        <span class="m3-badge-large tabular-nums">{{ cartCount() }}</span>
+      }
+    </button>
+  </div>
+
+  <!-- ======================================================================
+       10. PRODUCT DETAIL & CUSTOMIZER MODAL DIALOG (28dp Extra-Large Radius)
+       ====================================================================== -->
+  @if (activeProductModal(); as prod) {
+    <div class="m3-scrim" (click)="activeProductModal.set(null)">
+      <div class="m3-configurator-dialog" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <div class="config-grid">
+          <!-- Left Concentric Image Column -->
+          <div class="config-media-col">
+            <img [src]="prod.image" [alt]="prod.name" class="config-hero-img" />
+            <div class="config-materials-box">
+              <span class="mat-overline">ARCHITECTURAL MATERIALS &amp; DIMENSIONS</span>
+              <strong>{{ prod.materials }}</strong>
+              <span class="tabular-nums">{{ prod.dimensions }}</span>
+            </div>
+          </div>
+
+          <!-- Right Specification & Customization Column -->
+          <div class="config-details-col">
+            <div class="config-top-bar">
+              <span class="tag-pill tag-primary">{{ prod.categoryLabel }} · {{ prod.badge || 'Atelier Series' }}</span>
+              <button
+                type="button"
+                class="m3-icon-btn m3-icon-btn--standard"
+                (click)="activeProductModal.set(null)"
+                aria-label="Close configurator">
+                <span class="ms-icon">close</span>
+              </button>
+            </div>
+
+            <div class="config-title-price">
+              <h2>{{ prod.name }}</h2>
+              <span class="config-price tabular-nums">€{{ prod.price }}</span>
+            </div>
+            <p class="config-desc">{{ prod.description }}</p>
+
+            <!-- 1. Finish Selection -->
+            <div class="config-field-group">
+              <label class="field-label">1. Select Hardware Finish (Syncs Live HCT Theme)</label>
+              <div class="finish-options-row">
+                @for (fin of prod.finishes; track fin.name) {
+                  <button
+                    type="button"
+                    class="finish-option-pill"
+                    [class.selected]="modalFinish()?.name === fin.name"
+                    (click)="modalFinish.set(fin); selectProductFinish(prod, fin)">
+                    <span class="dot" [style.background-color]="fin.hex"></span>
+                    <span>{{ fin.name }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- 2. Custom CNC Laser Monogram (Outlined M3 Text Field) -->
+            <div class="config-field-group">
+              <label class="field-label">2. Complimentary CNC Laser Monogram (Optional)</label>
+              <div class="m3-outlined-field">
+                <span class="ms-icon">edit_attributes</span>
+                <input
+                  type="text"
+                  maxlength="18"
+                  placeholder="Up to 18 characters (e.g., STUDIO 01)"
+                  [ngModel]="modalEngraving()"
+                  (ngModelChange)="modalEngraving.set($event)" />
+                <span class="char-counter tabular-nums">{{ modalEngraving().length }}/18</span>
+              </div>
+            </div>
+
+            <!-- 3. Atelier Care+ Coverage Toggle -->
+            <div class="config-care-box" [class.selected]="modalCarePlus()" (click)="modalCarePlus.set(!modalCarePlus())">
+              <span class="ms-icon" [class.filled]="modalCarePlus()">
+                {{ modalCarePlus() ? 'verified_user' : 'shield' }}
+              </span>
+              <div class="care-info">
+                <strong>Sona Atelier Care+ (7-Year Acoustic &amp; Accidental Coverage)</strong>
+                <span>Includes complimentary cushion/battery swaps &amp; express loaner unit.</span>
+              </div>
+              <strong class="tabular-nums">+€59</strong>
+            </div>
+
+            <!-- Technical Specifications Table -->
+            <div class="config-specs-list">
+              @for (s of prod.specs; track s.label) {
+                <div class="spec-row">
+                  <span class="spec-key">{{ s.label }}</span>
+                  <span class="spec-val">{{ s.value }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Dialog Actions (Dismissive Left, High-Emphasis Confirming Right) -->
+            <div class="config-dialog-actions">
+              <button
+                type="button"
+                class="m3-btn m3-btn--text m3-btn--m"
+                (click)="activeProductModal.set(null)">
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="m3-btn m3-btn--filled m3-btn--m"
+                (click)="saveModalConfigurationToBag()">
+                <span class="ms-icon filled">shopping_bag</span>
+                Add to bag · €{{ prod.price + (modalCarePlus() ? 59 : 0) }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ======================================================================
+       11. MODAL SHOPPING BAG SIDE SHEET & MULTI-STEP CHECKOUT (`surface-container-low`)
+       ====================================================================== -->
+  @if (cartOpen()) {
+    <div class="m3-scrim side-sheet-scrim" (click)="cartOpen.set(false)">
+      <aside class="m3-side-sheet" role="dialog" aria-label="Shopping Bag and Checkout" (click)="$event.stopPropagation()">
+        <!-- Sheet Header -->
+        <div class="sheet-header">
+          <div>
+            <span class="sheet-kicker">SONA ATELIER CONCIERGE</span>
+            <h3>
+              @switch (checkoutStep()) {
+                @case ('bag') { Your Shopping Bag ({{ cartCount() }}) }
+                @case ('shipping') { Express Courier Checkout }
+                @case ('processing') { Allocating Serial Numbers... }
+                @case ('confirmed') { Atelier Order Confirmed }
+              }
+            </h3>
+          </div>
+          <button
+            type="button"
+            class="m3-icon-btn m3-icon-btn--standard"
+            (click)="cartOpen.set(false)"
+            aria-label="Close shopping bag">
+            <span class="ms-icon">close</span>
+          </button>
+        </div>
+
+        <!-- Free Express Courier Progress Bar (M3 Wavy Linear Progress Indicator) -->
+        @if (checkoutStep() === 'bag' || checkoutStep() === 'shipping') {
+          <div class="shipping-progress-banner">
+            <div class="sp-label-row">
+              <span>
+                @if (cartSubtotal() >= 500) {
+                  <strong>Complimentary Express Air Courier unlocked!</strong>
+                } @else {
+                  Add <strong>€{{ 500 - cartSubtotal() }}</strong> more for free Express Air Courier
+                }
+              </span>
+              <span class="tabular-nums">{{ freeShippingProgress() }}%</span>
+            </div>
+            <!-- M3 Expressive Wavy Progress SVG -->
+            <svg class="wavy-progress-svg" viewBox="0 0 320 14" preserveAspectRatio="none">
+              <path
+                class="wavy-active"
+                d="M 0 7 Q 8 2, 16 7 T 32 7 T 48 7 T 64 7 T 80 7 T 96 7 T 112 7 T 128 7 T 144 7 T 160 7 T 176 7 T 192 7 T 208 7 T 224 7 T 240 7 T 256 7 T 272 7 T 288 7 T 308 7"
+                fill="none"
+                stroke-width="3.5"
+                stroke-linecap="round" />
+              <circle cx="314" cy="7" r="2.5" class="wavy-dot" />
+            </svg>
+          </div>
+        }
+
+        <!-- STEP 1: BAG ITEMS & PROMO CODE -->
+        @if (checkoutStep() === 'bag') {
+          <div class="sheet-scroll-body">
+            @if (cartItems().length === 0) {
+              <div class="empty-bag-state">
+                <span class="ms-icon">shopping_bag</span>
+                <h4>Your Atelier Bag is empty</h4>
+                <p>Explore our planar magnetic headphones, spatial room speakers, and tactile synthesizers.</p>
+                <button type="button" class="m3-btn m3-btn--filled m3-btn--s" (click)="cartOpen.set(false); scrollToSection('catalog')">
+                  Browse objects
+                </button>
+              </div>
+            } @else {
+              <div class="cart-items-list">
+                @for (item of cartItems(); track $index; let idx = $index) {
+                  <div class="cart-item-card">
+                    <img [src]="item.product.image" [alt]="item.product.name" class="cart-thumb" />
+                    <div class="cart-item-info">
+                      <div class="ci-top">
+                        <strong>{{ item.product.name }}</strong>
+                        <button type="button" class="ci-remove" (click)="removeCartItem(idx)" aria-label="Remove item">
+                          <span class="ms-icon">delete</span>
+                        </button>
+                      </div>
+                      <span class="ci-finish">
+                        <span class="dot" [style.background-color]="item.finish.hex"></span>
+                        {{ item.finish.name }}
+                      </span>
+                      @if (item.engraving) {
+                        <span class="ci-badge">Engraving: "{{ item.engraving }}"</span>
+                      }
+                      @if (item.carePlus) {
+                        <span class="ci-badge">Atelier Care+ (+€59)</span>
+                      }
+                      <div class="ci-bottom">
+                        <div class="qty-stepper tabular-nums">
+                          <button type="button" (click)="updateCartQuantity(idx, -1)" aria-label="Decrease quantity">−</button>
+                          <span>{{ item.quantity }}</span>
+                          <button type="button" (click)="updateCartQuantity(idx, 1)" aria-label="Increase quantity">+</button>
+                        </div>
+                        <strong class="tabular-nums">€{{ (item.product.price + (item.carePlus ? 59 : 0)) * item.quantity }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Promo Code Box (Outlined M3 Text Field) -->
+              <div class="promo-code-section">
+                <div class="promo-input-row">
+                  <div class="m3-outlined-field compact">
+                    <span class="ms-icon">sell</span>
+                    <input
+                      type="text"
+                      placeholder="Promo code (SONA10 or ATELIER20)"
+                      [ngModel]="promoCodeInput()"
+                      (ngModelChange)="promoCodeInput.set($event)" />
+                  </div>
+                  <button type="button" class="m3-btn m3-btn--tonal m3-btn--s" (click)="applyPromoCode()">
+                    Apply
+                  </button>
+                </div>
+                @if (promoError()) {
+                  <span class="field-error-text">{{ promoError() }}</span>
+                }
+                @if (appliedPromo(); as promo) {
+                  <span class="field-success-text">
+                    ✓ Code <strong>{{ promo.code }}</strong> applied ({{ promo.discountPercent }}% privilege)
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (cartItems().length > 0) {
+            <div class="sheet-footer">
+              <div class="totals-breakdown tabular-nums">
+                <div class="line">
+                  <span>Subtotal</span>
+                  <span>€{{ cartSubtotal() }}</span>
+                </div>
+                @if (promoDiscountAmount() > 0) {
+                  <div class="line savings">
+                    <span>Atelier Privilege Discount</span>
+                    <span>-€{{ promoDiscountAmount() }}</span>
+                  </div>
+                }
+                <div class="line">
+                  <span>Courier Shipping</span>
+                  <span>{{ shippingCost() === 0 ? 'Complimentary' : '€' + shippingCost() }}</span>
+                </div>
+                <div class="line grand">
+                  <span>Estimated Total (incl. VAT)</span>
+                  <strong>€{{ cartGrandTotal() }}</strong>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="m3-btn m3-btn--filled m3-btn--m full-width-btn"
+                (click)="checkoutStep.set('shipping')">
+                <span>Proceed to checkout</span>
+                <span class="ms-icon">arrow_forward</span>
+              </button>
+            </div>
+          }
+        }
+
+        <!-- STEP 2: SHIPPING & DELIVERY FORM (100% Outlined M3 Text Fields + Segmented List) -->
+        @if (checkoutStep() === 'shipping') {
+          <div class="sheet-scroll-body">
+            <h4 class="checkout-subhead">1. Delivery Method (M3 Expressive Segmented List)</h4>
+            <div class="m3-segmented-list compact-list">
+              <div
+                class="m3-segmented-item"
+                [class.selected]="shippingMethod() === 'express'"
+                (click)="shippingMethod.set('express')">
+                <span class="ms-icon" [class.filled]="shippingMethod() === 'express'">flight_takeoff</span>
+                <div class="seg-info">
+                  <strong>DHL Express Air Courier (1–2 Days)</strong>
+                  <span>Insured studio dispatch from Copenhagen</span>
+                </div>
+                <strong class="tabular-nums">{{ cartSubtotal() >= 500 ? 'Free' : '€25' }}</strong>
+              </div>
+
+              <div
+                class="m3-segmented-item"
+                [class.selected]="shippingMethod() === 'atelier-white-glove'"
+                (click)="shippingMethod.set('atelier-white-glove')">
+                <span class="ms-icon" [class.filled]="shippingMethod() === 'atelier-white-glove'">spatial_tracking</span>
+                <div class="seg-info">
+                  <strong>White-Glove Acoustic Calibration</strong>
+                  <span>In-room installation &amp; sonar tuning by Sona engineer</span>
+                </div>
+                <strong class="tabular-nums">€45</strong>
+              </div>
+
+              <div
+                class="m3-segmented-item"
+                [class.selected]="shippingMethod() === 'pickup'"
+                (click)="shippingMethod.set('pickup')">
+                <span class="ms-icon" [class.filled]="shippingMethod() === 'pickup'">storefront</span>
+                <div class="seg-info">
+                  <strong>Atelier Showroom Collection</strong>
+                  <span>Copenhagen, Tokyo, or Zagreb Design District</span>
+                </div>
+                <strong>Free</strong>
+              </div>
+            </div>
+
+            <h4 class="checkout-subhead">2. Recipient Details (Outlined M3 Text Fields)</h4>
+            <div class="checkout-fields-stack">
+              <div class="m3-outlined-field">
+                <span class="ms-icon">person</span>
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  [ngModel]="checkoutForm().fullName"
+                  (ngModelChange)="updateCheckoutField('fullName', $event)" />
+              </div>
+
+              <div class="m3-outlined-field">
+                <span class="ms-icon">mail</span>
+                <input
+                  type="email"
+                  placeholder="Email for Lossless Serial Certificate"
+                  [ngModel]="checkoutForm().email"
+                  (ngModelChange)="updateCheckoutField('email', $event)" />
+              </div>
+
+              <div class="m3-outlined-field">
+                <span class="ms-icon">home_pin</span>
+                <input
+                  type="text"
+                  placeholder="Street Address"
+                  [ngModel]="checkoutForm().address"
+                  (ngModelChange)="updateCheckoutField('address', $event)" />
+              </div>
+
+              <div class="fields-2col">
+                <div class="m3-outlined-field">
+                  <input
+                    type="text"
+                    placeholder="City"
+                    [ngModel]="checkoutForm().city"
+                    (ngModelChange)="updateCheckoutField('city', $event)" />
+                </div>
+                <div class="m3-outlined-field">
+                  <input
+                    type="text"
+                    placeholder="Postal Code"
+                    [ngModel]="checkoutForm().postalCode"
+                    (ngModelChange)="updateCheckoutField('postalCode', $event)" />
+                </div>
+              </div>
+            </div>
+
+            @if (checkoutError()) {
+              <div class="checkout-error-banner">{{ checkoutError() }}</div>
+            }
+          </div>
+
+          <div class="sheet-footer">
+            <div class="checkout-footer-btns">
+              <button
+                type="button"
+                class="m3-btn m3-btn--outlined m3-btn--m"
+                (click)="checkoutStep.set('bag')">
+                Back
+              </button>
+              <button
+                type="button"
+                class="m3-btn m3-btn--filled m3-btn--m"
+                style="flex: 1;"
+                (click)="submitOrder()">
+                <span class="ms-icon filled">lock</span>
+                Complete order · €{{ cartGrandTotal() }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- STEP 3: M3 EXPRESSIVE 7-SHAPE MORPHING LOADING INDICATOR (<5s Wait) -->
+        @if (checkoutStep() === 'processing') {
+          <div class="processing-state">
+            <div class="m3-loading-contained">
+              <div class="morph-polygon" [attr.data-step]="loadingPolygonStep()"></div>
+            </div>
+            <h4>Registering serial numbers &amp; calibrating DSP profile...</h4>
+            <p>M3 Expressive 7-Shape Morphing Loading Indicator (`primary-container`)</p>
+          </div>
+        }
+
+        <!-- STEP 4: CONFIRMED ORDER RECEIPT -->
+        @if (checkoutStep() === 'confirmed') {
+          <div class="confirmed-state">
+            <div class="confirmed-badge-circle">
+              <span class="ms-icon filled">verified</span>
+            </div>
+            <span class="conf-overline tabular-nums">CERTIFICATE #{{ confirmedOrderId() }}</span>
+            <h4>Thank you, {{ checkoutForm().fullName }}!</h4>
+            <p>
+              Your handcrafted Sona Atelier objects have been assigned serial numbers and scheduled for dispatch to
+              <strong>{{ checkoutForm().address }}, {{ checkoutForm().city }}</strong>.
+            </p>
+
+            <div class="confirmed-summary-box tabular-nums">
+              <div class="row">
+                <span>Order Reference</span>
+                <strong>{{ confirmedOrderId() }}</strong>
+              </div>
+              <div class="row">
+                <span>Amount Paid</span>
+                <strong>€{{ cartGrandTotal() }}</strong>
+              </div>
+              <div class="row">
+                <span>HCT Finish Theme</span>
+                <strong>{{ theme.seedColor() }}</strong>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="m3-btn m3-btn--filled m3-btn--m full-width-btn"
+              (click)="resetOrderFlow()">
+              Continue exploring Sona Atelier
+            </button>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+
+  <!-- ======================================================================
+       12. DOCKED M3 SEARCH VIEW MODAL (56dp Pill + 12dp Results Card)
+       ====================================================================== -->
+  @if (searchModalOpen()) {
+    <div class="m3-scrim" (click)="searchModalOpen.set(false)">
+      <div class="m3-search-modal" (click)="$event.stopPropagation()">
+        <div class="search-bar-pill">
+          <span class="ms-icon">search</span>
+          <input
+            type="text"
+            placeholder="Search headphones, speakers, travertine turntable, planar specs..."
+            autofocus
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)" />
+          <button type="button" class="m3-icon-btn m3-icon-btn--standard" (click)="searchModalOpen.set(false)">
+            <span class="ms-icon">close</span>
+          </button>
+        </div>
+
+        <div class="search-results-card">
+          @for (p of filteredProducts(); track p.id) {
+            <button
+              type="button"
+              class="search-result-row"
+              (click)="searchModalOpen.set(false); openProductConfigurator(p)">
+              <img [src]="p.image" [alt]="p.name" class="sr-thumb" />
+              <div class="sr-info">
+                <strong>{{ p.name }} — {{ p.subtitle }}</strong>
+                <span>{{ p.materials }}</span>
+              </div>
+              <strong class="sr-price tabular-nums">€{{ p.price }}</strong>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
